@@ -32,6 +32,16 @@ Route::prefix('dashboard')
             Route::put('/publish/{post}', [DashboardPostController::class, 'publish'])->name('posts.publish');
             Route::post('/update/{post}', [DashboardPostController::class, 'update'])->name('posts.update');
         });
+
+         // Add these new weather routes
+         Route::get('/weather', function () {
+            return Inertia::render('Dashboard/Weather/Index');
+        })->name('weather.index');
+        
+        Route::post('/weather/get-data', function () {
+            // This will be handled by your WeatherController
+            return response()->json([]);
+        })->name('weather.getData');
     });
 
 require __DIR__ . '/auth.php';

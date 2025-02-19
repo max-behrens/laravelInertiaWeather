@@ -7,7 +7,7 @@ import SortArrowUp from "@/Components/SortArrowUp.vue";
 import SortArrowDown from "@/Components/SortArrowDown.vue";
 import { Inertia } from "@inertiajs/inertia";
 import { useForm } from "@inertiajs/inertia-vue3";
-import { useDateFormat, useNow } from '@vueuse/core'
+// import { useDateFormat, useNow } from '@vueuse/core'
 import { usePage } from '@inertiajs/inertia-vue3';
 import { ref, watch, reactive, onMounted } from 'vue';
 
@@ -50,6 +50,33 @@ const params = reactive({
   field: props.filters.field,
   direction: props.filters.direction,
 });
+
+// Add this function near your other utility functions
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  
+  // Add ordinal suffix to day
+  const day = date.getDate();
+  const suffix = getDaySuffix(day);
+  
+  // Get month abbreviation
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const month = months[date.getMonth()];
+  
+  // Format full date
+  return `${day}${suffix} ${month} ${date.getFullYear()}`;
+}
+
+// Helper function to get day suffix (th, st, nd, rd)
+function getDaySuffix(day) {
+  if (day > 3 && day < 21) return 'th';
+  switch (day % 10) {
+    case 1: return 'st';
+    case 2: return 'nd';
+    case 3: return 'rd';
+    default: return 'th';
+  }
+}
 
 // Add page monitoring
 const page = usePage();
@@ -125,7 +152,7 @@ async function fetchWeather() {
     // Process each forecast's time and store formatted date
     forecastData.value = response.data.forecasts.map(forecast => ({
       ...forecast,
-      formattedTime: useDateFormat(forecast.time, 'Do MMM YYYY').value
+      formattedTime: formatDate(forecast.time)
     }));
 
 
