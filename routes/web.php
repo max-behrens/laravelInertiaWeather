@@ -4,6 +4,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\Front\IndexController;
+use App\Http\Controllers\Dashboard\WeatherController;
 use App\Http\Controllers\Front\PostController as FrontPostController;
 use App\Http\Controllers\Dashboard\PostController as DashboardPostController;
 
@@ -38,10 +39,8 @@ Route::prefix('dashboard')
             return Inertia::render('Dashboard/Weather/Index');
         })->name('weather.index');
         
-        Route::post('/weather/get-data', function () {
-            // This will be handled by your WeatherController
-            return response()->json([]);
-        })->name('weather.getData');
+        Route::post('/weather/get-data', [WeatherController::class, 'getWeather'])->name('weather.getData');
+
     });
 
 require __DIR__ . '/auth.php';
