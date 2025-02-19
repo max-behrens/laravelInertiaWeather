@@ -131,6 +131,12 @@ async function fetchWeather() {
   }
 }
 
+const formatKey = (key) => {
+  return key
+    .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
+    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
+    .replace('Changes', ' Rate of Change (%)'); // Make labels more meaningful
+};
 // Set city input method
 function setCityInput(input) {
   params.city = input;
@@ -196,15 +202,18 @@ watch(
                                   </div>
                                 </div>
 
-                                <!-- Weather Calculation Results -->
-                                <div v-if="calculationResults" class="mt-10 bg-gray-50 p-5 rounded-lg shadow-md">
-                                  <h3 class="text-xl font-semibold mb-4 text-center">Weather Fluctuation Values</h3>
-                                  <!-- Temperature, Humidity, Pressure Changes -->
-                                  <div v-for="(item, index) in calculationResults" :key="index" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-4">
-                                    <h4 class="font-semibold">{{ item }}</h4>
-                                    <p>Rate of Change: {{ item }}</p>
-                                  </div>
+                               <!-- Weather Calculation Results -->
+                              <div v-if="calculationResults" class="mt-10 bg-gray-50 p-5 rounded-lg shadow-md">
+                                <h3 class="text-xl font-semibold mb-4 text-center">Weather Fluctuation Values</h3>
+
+                                <!-- Temperature, Humidity, Pressure Changes -->
+                                <div v-for="(value, key) in calculationResults" :key="key" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-4">
+                                  <h4 class="font-semibold">{{ formatKey(key) }}</h4>
+                                  <p v-if="Array.isArray(value)">Rate of Change Between Each Day: {{ value.join(', ') }}</p>
+                                  <p v-else>Overall {{ formatKey(key) }}: {{ value }}</p>
                                 </div>
+                              </div>
+
                             </div>
                         </div>
                     </div>
