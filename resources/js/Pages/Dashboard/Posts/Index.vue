@@ -75,7 +75,7 @@ function setSearchInput(input, event) {
 
     <Head title="Posts" />
     <BreezeAuthenticatedLayout> <template #header>
-            <h2 class="text-xl font-semibold leading-tight text-gray-800"> Posts Index </h2>
+            <h2 class="text-xl font-semibold leading-tight text-gray-800"> User Posts </h2>
         </template>
         <div class="py-12">
             <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
@@ -106,7 +106,7 @@ function setSearchInput(input, event) {
                                     <thead
                                         class=" text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
                                         <tr>
-                                            <th>Featured Image</th>
+                                            <th>Image</th>
                                             <th scope="col" class="px-6 py-3" @click="sort('id')">
                                                 <span class="inline-flex px-6 py-3 w-full justify-between">
                                                     #
@@ -150,12 +150,12 @@ function setSearchInput(input, event) {
                                     </thead>
                                     <tbody>
                                         <tr v-for="post in posts.data" :key="post.id"
-                                            class=" bg-white border-b dark:bg-gray-800 dark:border-gray-700 ">
+                                            class=" bg-white border-b dark:bg-gray-800 ">
                                             <td scope="row"
                                                 class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
                                                 <div class="avatar">
                                                     <div class="w-20 rounded">
-                                                        <img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/no-preview.jpg'"
+                                                        <img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'"
                                                             alt="Tailwind-CSS-Avatar-component" />
                                                     </div>
                                                 </div>

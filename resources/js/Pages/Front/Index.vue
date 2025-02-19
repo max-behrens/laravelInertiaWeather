@@ -64,7 +64,7 @@ function loadMorePosts() {
             <div v-for="post in all_posts" :key="post.id" class="card lg:card-side bg-base-100 shadow-xl mb-6"
                 data-theme="coffee">
                 <figure style="max-width: 400px; max-height: 400px;"><img class="w-full"
-                        :src="post.featured_image ? '/storage/' + post.featured_image : '/images/no-preview.jpg'">
+                        :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'">
                 </figure>
                 <div class="card-body">
                     <h2 class="card-title">{{ post.title }}</h2>

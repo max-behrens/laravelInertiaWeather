@@ -29,7 +29,7 @@ defineProps({
 
         <div class="max-w-6xl mx-auto sm:px-6 lg:px-8 mt-12 mb-12">
             <div class="card w-full bg-base-100 shadow-xl">
-                <figure><img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/no-preview.jpg'"
+                <figure><img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'"
                         alt="Shoes" /></figure>
                 <div class="card-body">
                     <h2 class="card-title">{{ post.title }}</h2>

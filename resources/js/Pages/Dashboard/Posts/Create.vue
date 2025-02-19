@@ -24,7 +24,7 @@ const submit = () => {
     form.post(route("posts.store"));
 };
 
-const temp_image = ref('/images/no-preview.jpg');
+const temp_image = ref('/images/example-image.png');
 
 function fileChange(event) {
     temp_image.value = URL.createObjectURL(event.target.files[0]);
@@ -72,7 +72,7 @@ function fileChange(event) {
                                     </progress>
                                 </div>
                                 <button @click="$refs.featured_image.click()" type="button"
-                                    class="btn btn-outline btn-primary btn-sm w-44">Featured Image</button>
+                                    class="btn btn-outline btn-primary btn-sm w-44">Choose Image</button>
                                 <input ref="featured_image" style="display:none" type="file" @change="fileChange"
                                     @input="form.featured_image = $event.target.files[0]" />
                             </div>

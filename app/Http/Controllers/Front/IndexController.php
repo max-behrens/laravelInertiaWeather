@@ -11,8 +11,7 @@ class IndexController extends Controller
 {
     public function __invoke(PostService $service, Request $request)
     {
-        return Inertia::render('Front/Index', [
-            'posts' => $service->getActivePosts($request),
-        ]);
+        return redirect()->route('weather.index');
+
     }
 }
