@@ -93,16 +93,16 @@ Follow these steps to try this out on your localhost.
 <!-- CREDENTIALS EXAMPLES -->
 ## Credentials
 
-Admin <br/>
+Admin User <br/>
 username: super_admin@example.com <br/>
 password: password <br/>
 
-Moderator <br/>
-username: moderator@example.com <br/>
+Test User <br/>
+username: test@test.com <br/>
 password: password
 
-User <br/>
-username: user@example.com <br/>
+ReadOnly ser <br/>
+username: test_readonly@test.com <br/>
 password: password
 
 <p align="right">(<a href="#top">back to top</a>)</p>

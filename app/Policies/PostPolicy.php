@@ -81,7 +81,7 @@ class PostPolicy
      */
     public function publish(User $user, Post $post)
     {
-        if (!$user->hasRole('moderator')) {
+        if (!$user->hasRole('testUser')) {
             return $user->hasPermissionTo('publish posts') && $user->id === $post->user_id
                 ? Response::allow()
                 : Response::denyAsNotFound();
@@ -101,7 +101,7 @@ class PostPolicy
      */
     public function unpublish(User $user, Post $post)
     {
-        if (!$user->hasRole('moderator')) {
+        if (!$user->hasRole('testUser')) {
             return $user->hasPermissionTo('unpublish posts') && $user->id === $post->user_id
                 ? Response::allow()
                 : Response::denyAsNotFound();

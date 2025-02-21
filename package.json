@@ -20,7 +20,9 @@
         "vue": "^3.2.31"
     },
     "dependencies": {
+        "chart.js": "^4.4.8",
         "daisyui": "^2.24.0",
-        "vue-debounce": "^4.0.0"
+        "vue-debounce": "^4.0.0",
+        "ziggy-js": "^2.5.1"
     }
 }

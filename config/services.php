@@ -35,4 +35,8 @@ return [
         'key' => env('DARK_SKY_KEY'),
     ],
 
+    'openai' => [
+        'secret' => env('OPENAI_SECRET')
+    ]
+
 ];

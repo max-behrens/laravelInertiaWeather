@@ -9,9 +9,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StorePostRequest;
 use App\Services\Dashboard\PostService;
 use App\Http\Requests\UpdatePostRequest;
+use Illuminate\Support\Facades\Log;
 
 class PostController extends Controller
 {
+
     public function __construct()
     {
         $this->authorizeResource(Post::class, 'post');
@@ -24,6 +26,9 @@ class PostController extends Controller
             'direction' => ['nullable', 'in:asc,desc'],
             'search' => ['nullable'],
         ]);
+
+        Log::info('request:', ['request' => $request]);
+
 
         return Inertia::render(
             'Dashboard/Posts/Index',

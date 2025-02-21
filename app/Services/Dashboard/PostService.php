@@ -7,6 +7,8 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
+
 
 class PostService
 {
@@ -16,45 +18,57 @@ class PostService
         $sort_field = $request->filled('field') ? $request->field : 'updated_at';
         $sort_direction = $request->filled('direction') ? $request->direction : 'desc';
 
+
+        Log::info('search:', ['search' => $search]);
+
+
         $posts = Post::query()
-            ->select([
-                'posts.id',
-                'posts.user_id',
-                'posts.title',
-                'posts.slug',
-                'posts.is_active',
-                'posts.featured_image',
-                'posts.created_at',
-                'posts.updated_at',
-                'users.id as userid',
-                'users.name as username',
-            ])
-            ->join('users', 'users.id', '=', 'posts.user_id')
-            ->when($search, function ($query, $search) {
-                $query->search('title', $search);
-                $query->orSearch('slug', $search);
-                $query->orSearch('content', $search);
-            })
-            ->when($sort_field && $sort_direction, function ($query) use ($sort_field, $sort_direction) {
-                $query->orderBy($sort_field, $sort_direction);
-            })
-            ->paginate(10)
-            ->through(function ($post) {
-                $post->permissions = [
-                    'create' => Auth::user()->can('create', Post::class),
-                    'edit' => Auth::user()->can('update', $post),
-                    'delete' => Auth::user()->can('delete', $post),
-                    'publish' => Auth::user()->can('publish', $post),
-                    'unpublish' => Auth::user()->can('unpublish', $post),
-                ];
+        ->select([
+            'posts.id',
+            'posts.user_id',
+            'posts.title',
+            'posts.slug',
+            'posts.is_active',
+            'posts.featured_image',
+            'posts.created_at',
+            'posts.updated_at',
+            'users.id as userid',
+            'users.name as username',
+        ])
+        ->join('users', 'users.id', '=', 'posts.user_id')
+        ->where('posts.is_active', 1) // Add this condition
+        ->when($search, function ($query, $search) {
+            $query->search('title', $search);
+            $query->orSearch('slug', $search);
+            $query->orSearch('content', $search);
+        })
+        ->when($sort_field && $sort_direction, function ($query) use ($sort_field, $sort_direction) {
+            $query->orderBy($sort_field, $sort_direction);
+        })
+        ->paginate(10)
+        ->through(function ($post) {
+            $post->permissions = [
+                'create' => Auth::user()->can('create', Post::class),
+                'edit' => Auth::user()->can('update', $post),
+                'delete' => Auth::user()->can('delete', $post),
+                'publish' => Auth::user()->can('publish', $post),
+                'unpublish' => Auth::user()->can('unpublish', $post),
+            ];
 
-                $post->slug_limited = Str::of($post->slug)->limit(15);
-                $post->title_limited = Str::of($post->title)->limit(15);
-                $post->username_limited = Str::of($post->username)->limit(15);
+            $post->slug_limited = Str::of($post->slug)->limit(15);
+            $post->title_limited = Str::of($post->title)->limit(15);
+            $post->username_limited = Str::of($post->username)->limit(15);
 
-                return $post;
-            })
-            ->withQueryString();
+            return $post;
+        })
+        ->withQueryString();
+
+
+
+            Log::info('posts:', ['posts' => $posts]);
+
+
+
 
         return [
             'posts' => $posts,

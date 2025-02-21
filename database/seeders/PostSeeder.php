@@ -10,15 +10,13 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
 class PostSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-        $limit = 20000;
-        $chunk_size = 2000;
+        // Truncate the posts table to remove existing records
+        DB::table('posts')->truncate(); // Clears all rows in the posts table
+
+        $limit = 5;  // Set the limit to 5
+        $chunk_size = 5;  // Insert the posts in chunks of 5 (or adjust as needed)
         $data = [];
         $users = collect(User::all()->modelKeys());
 
@@ -34,6 +32,7 @@ class PostSeeder extends Seeder
             ];
         }
 
+        // Chunk the data and insert it
         $chunks = array_chunk($data, $chunk_size);
 
         foreach ($chunks as $chunk) {

@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Foundation\Application;
 use App\Http\Controllers\Front\IndexController;
 use App\Http\Controllers\Dashboard\WeatherController;
+use App\Http\Controllers\Dashboard\DashboardAIController;
 use App\Http\Controllers\Front\PostController as FrontPostController;
 use App\Http\Controllers\Dashboard\PostController as DashboardPostController;
 
@@ -40,6 +41,14 @@ Route::prefix('dashboard')
         })->name('weather.index');
         
         Route::post('/weather/get-data', [WeatherController::class, 'getWeather'])->name('weather.getData');
+
+
+        Route::post('/ask-openai', [DashboardAIController::class, 'askOpenAI']);
+
+        Route::get('/dashboard', function () {
+            return Inertia::render('Dashboard');
+        });
+
 
     });
 

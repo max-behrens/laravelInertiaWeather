@@ -19,36 +19,37 @@ class RolesAndPermissionSeeder extends Seeder
         // Reset cached roles and permissions
         app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
 
-        Permission::create(['name' => 'create posts']);
-        Permission::create(['name' => 'edit posts']);
-        Permission::create(['name' => 'delete posts']);
-        Permission::create(['name' => 'publish posts']);
-        Permission::create(['name' => 'unpublish posts']);
+        Permission::firstOrCreate(['name' => 'create posts']);
+        Permission::firstOrCreate(['name' => 'edit posts']);
+        Permission::firstOrCreate(['name' => 'delete posts']);
+        Permission::firstOrCreate(['name' => 'publish posts']);
+        Permission::firstOrCreate(['name' => 'unpublish posts']);
 
-        $user_role = Role::create(['name' => 'user'])
+        $readonlyRole = Role::create(['name' => 'user'])
             ->givePermissionTo(Permission::all());
 
-        $moderator_role = Role::create(['name' => 'moderator'])
+        $testRole = Role::create(['name' => 'testUser'])
             ->givePermissionTo(['publish posts', 'unpublish posts']);
 
-        $super_admin_role = Role::create(['name' => 'Super-Admin']);
+        $adminRole = Role::create(['name' => 'adminUser']);
 
-        $user = \App\Models\User::factory()->create([
-            'name' => 'Example User',
-            'email' => 'user@example.com',
-        ]);
-        $user->assignRole($user_role);
+        // Create users and assign roles
+        $user = \App\Models\User::firstOrCreate(
+            ['email' => 'test_readonly@test.com'],
+            ['name' => 'Readonly User', 'password' => bcrypt('password')]
+        );
+        $user->assignRole($readonlyRole);
 
-        $moderator = \App\Models\User::factory()->create([
-            'name' => 'Example Moderator',
-            'email' => 'moderator@example.com',
-        ]);
-        $moderator->assignRole($moderator_role);
+        $testUser = \App\Models\User::firstOrCreate(
+            ['email' => 'test@test.com'],
+            ['name' => 'Test User', 'password' => bcrypt('password')]
+        );
+        $testUser->assignRole($testRole);
 
-        $super_admin = \App\Models\User::factory()->create([
-            'name' => 'Example Super Admin',
-            'email' => 'super_admin@example.com',
-        ]);
-        $super_admin->assignRole($super_admin_role);
+        $adminUser = \App\Models\User::firstOrCreate(
+            ['email' => 'test_admin@test.com'],
+            ['name' => 'Admin User', 'password' => bcrypt('password')]
+        );
+        $adminUser->assignRole($adminRole);
     }
 }
