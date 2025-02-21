@@ -101,103 +101,162 @@ function setSearchInput(input, event) {
                                 <input id="default-search" type="text" v-debounce:300="setSearchInput"
                                     class="input w-full max-w-xs" placeholder="Search...">
                             </div>
-                            <div class="overflow-x-auto">
-                                <table class="table table-compact w-full text-center table-zebra">
-                                    <thead
-                                        class=" text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
-                                        <tr>
-                                            <th>Image</th>
-                                            <th scope="col" class="px-6 py-3" @click="sort('id')">
-                                                <span class="inline-flex px-6 py-3 w-full justify-between">
-                                                    #
-                                                    <SortArrowUp v-if="determineSortDirection('id', 'asc')">
-                                                    </SortArrowUp>
-                                                    <SortArrowDown v-if="determineSortDirection('id', 'desc')">
-                                                    </SortArrowDown>
-                                                </span>
-                                            </th>
-                                            <th scope="col" class="px-6 py-3" @click="sort('title')">
-                                                <span class="inline-flex px-6 py-3 w-full justify-between">
-                                                    Title
-                                                    <SortArrowUp v-if="determineSortDirection('title', 'asc')">
-                                                    </SortArrowUp>
-                                                    <SortArrowDown v-if="determineSortDirection('title', 'desc')">
-                                                    </SortArrowDown>
-                                                </span>
-                                            </th>
-                                            <th scope="col" class="px-6 py-3" @click="sort('username')">
-                                                <span class="inline-flex px-6 py-3 w-full justify-between">
-                                                    Username
-                                                    <SortArrowUp v-if="determineSortDirection('username', 'asc')">
-                                                    </SortArrowUp>
-                                                    <SortArrowDown v-if="determineSortDirection('username', 'desc')">
-                                                    </SortArrowDown>
-                                                </span>
-                                            </th>
-                                            <th scope="col" class="px-6 py-3" @click="sort('slug')">
-                                                <span class="inline-flex px-6 py-3 w-full justify-between">
-                                                    Slug
-                                                    <SortArrowUp v-if="determineSortDirection('slug', 'asc')">
-                                                    </SortArrowUp>
-                                                    <SortArrowDown v-if="determineSortDirection('slug', 'desc')">
-                                                    </SortArrowDown>
-                                                </span>
-                                            </th>
-                                            <th scope="col" class="px-6 py-3">Publish</th>
-                                            <th scope="col" class="px-6 py-3">Edit</th>
-                                            <th scope="col" class="px-6 py-3">Delete</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="post in posts.data" :key="post.id"
-                                            class=" bg-white border-b dark:bg-gray-800 ">
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                            <div class="block md:block lg:overflow-x-auto">
+
+
+                                <!-- Mobile view -->
+                                <div class="block md:hidden">
+                                    <div v-for="post in posts.data" :key="post.id" class="mb-4 bg-white rounded-lg shadow p-4">
+                                        <div class="grid grid-cols-1 gap-2">
+                                            <!-- Image -->
+                                            <div class="flex justify-center">
                                                 <div class="avatar">
                                                     <div class="w-20 rounded">
                                                         <img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'"
                                                             alt="Tailwind-CSS-Avatar-component" />
                                                     </div>
                                                 </div>
-                                            </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
-                                                {{ post.id }} </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
-                                                :title="post.title">
-                                                {{ post.title_limited }} </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
-                                                :title="post.username">
-                                                {{ post.username_limited }} </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
-                                                :title="post.slug">
-                                                {{ post.slug_limited }} </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                            </div>
+                                            
+                                            <!-- Details -->
+                                            <div class="grid grid-cols-2 gap-1">
+                                                <div class="font-semibold">ID:</div>
+                                                <div>{{ post.id }}</div>
+                                                
+                                                <div class="font-semibold">Title:</div>
+                                                <div>{{ post.title_limited }}</div>
+                                                
+                                                <div class="font-semibold">Username:</div>
+                                                <div>{{ post.username_limited }}</div>
+                                                
+                                                <div class="font-semibold">Slug:</div>
+                                                <div>{{ post.slug_limited }}</div>
+                                            </div>
+
+                                            <!-- Actions -->
+                                            <div class="flex justify-between items-center mt-2">
                                                 <div v-if="post.permissions.publish && post.permissions.unpublish">
-                                                    <input @change="publish(post.id, post.is_active)" type="checkbox"
-                                                        true-value="1" false-value="0" v-model="post.is_active"
+                                                    <input @change="publish(post.id, post.is_active)" 
+                                                        type="checkbox"
+                                                        true-value="1" 
+                                                        false-value="0" 
+                                                        v-model="post.is_active"
                                                         class="checkbox checkbox-md checkbox-accent" />
                                                 </div>
-                                            </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
-                                                <div v-if="post.permissions.edit">
-                                                    <Link :href="route('posts.edit', post.id)" class="btn btn-warning">
-                                                    Edit</Link>
+                                                <div class="flex gap-2">
+                                                    <Link v-if="post.permissions.edit" 
+                                                        :href="route('posts.edit', post.id)" 
+                                                        class="btn btn-warning btn-sm">Edit</Link>
+                                                    <button v-if="post.permissions.delete" 
+                                                            @click="destroy(post.id)"
+                                                            class="btn btn-error btn-sm">Delete</button>
                                                 </div>
-                                            </td>
-                                            <td scope="row"
-                                                class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
-                                                <button v-if="post.permissions.delete" @click="destroy(post.id)"
-                                                    class="btn btn-error">Delete</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+
+                                <!-- Desktop view -->
+                                <div class="hidden md:block overflow-x-auto">
+                                    <table class="table table-compact w-full text-center table-zebra">
+                                        <thead
+                                            class=" text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
+                                            <tr>
+                                                <th>Image</th>
+                                                <th scope="col" class="px-6 py-3" @click="sort('id')">
+                                                    <span class="inline-flex px-6 py-3 w-full justify-between">
+                                                        #
+                                                        <SortArrowUp v-if="determineSortDirection('id', 'asc')">
+                                                        </SortArrowUp>
+                                                        <SortArrowDown v-if="determineSortDirection('id', 'desc')">
+                                                        </SortArrowDown>
+                                                    </span>
+                                                </th>
+                                                <th scope="col" class="px-6 py-3" @click="sort('title')">
+                                                    <span class="inline-flex px-6 py-3 w-full justify-between">
+                                                        Title
+                                                        <SortArrowUp v-if="determineSortDirection('title', 'asc')">
+                                                        </SortArrowUp>
+                                                        <SortArrowDown v-if="determineSortDirection('title', 'desc')">
+                                                        </SortArrowDown>
+                                                    </span>
+                                                </th>
+                                                <th scope="col" class="px-6 py-3" @click="sort('username')">
+                                                    <span class="inline-flex px-6 py-3 w-full justify-between">
+                                                        Username
+                                                        <SortArrowUp v-if="determineSortDirection('username', 'asc')">
+                                                        </SortArrowUp>
+                                                        <SortArrowDown v-if="determineSortDirection('username', 'desc')">
+                                                        </SortArrowDown>
+                                                    </span>
+                                                </th>
+                                                <th scope="col" class="px-6 py-3" @click="sort('slug')">
+                                                    <span class="inline-flex px-6 py-3 w-full justify-between">
+                                                        Slug
+                                                        <SortArrowUp v-if="determineSortDirection('slug', 'asc')">
+                                                        </SortArrowUp>
+                                                        <SortArrowDown v-if="determineSortDirection('slug', 'desc')">
+                                                        </SortArrowDown>
+                                                    </span>
+                                                </th>
+                                                <th scope="col" class="px-6 py-3">Publish</th>
+                                                <th scope="col" class="px-6 py-3">Edit</th>
+                                                <th scope="col" class="px-6 py-3">Delete</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="post in posts.data" :key="post.id"
+                                                class=" bg-white border-b dark:bg-gray-800 ">
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    <div class="avatar">
+                                                        <div class="w-20 rounded">
+                                                            <img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'"
+                                                                alt="Tailwind-CSS-Avatar-component" />
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    {{ post.id }} </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
+                                                    :title="post.title">
+                                                    {{ post.title_limited }} </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
+                                                    :title="post.username">
+                                                    {{ post.username_limited }} </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
+                                                    :title="post.slug">
+                                                    {{ post.slug_limited }} </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    <div v-if="post.permissions.publish && post.permissions.unpublish">
+                                                        <input @change="publish(post.id, post.is_active)" type="checkbox"
+                                                            true-value="1" false-value="0" v-model="post.is_active"
+                                                            class="checkbox checkbox-md checkbox-accent" />
+                                                    </div>
+                                                </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    <div v-if="post.permissions.edit">
+                                                        <Link :href="route('posts.edit', post.id)" class="btn btn-warning">
+                                                        Edit</Link>
+                                                    </div>
+                                                </td>
+                                                <td scope="row"
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    <button v-if="post.permissions.delete" @click="destroy(post.id)"
+                                                        class="btn btn-error">Delete</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                         <Pagination class="mt-6" :links="posts.links" />

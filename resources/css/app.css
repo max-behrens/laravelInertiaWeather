@@ -43,3 +43,20 @@ input {
 .py-12 {
     background-color: rgba(171, 221, 213, 0.342) !important;
 }
+
+
+
+/* Make the sticky position only apply on larger screens */
+.table th:first-child {
+    position: -webkit-sticky;
+    position: sticky;
+    left: 0;
+    z-index: 11;
+}
+
+/* Disable sticky on mobile */
+@media (max-width: 767px) {
+    .table th:first-child {
+        position: static;
+    }
+}

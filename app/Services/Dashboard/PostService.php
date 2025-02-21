@@ -36,7 +36,6 @@ class PostService
             'users.name as username',
         ])
         ->join('users', 'users.id', '=', 'posts.user_id')
-        ->where('posts.is_active', 1) // Add this condition
         ->when($search, function ($query, $search) {
             $query->search('title', $search);
             $query->orSearch('slug', $search);

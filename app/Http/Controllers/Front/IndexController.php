@@ -11,7 +11,7 @@ class IndexController extends Controller
 {
     public function __invoke(PostService $service, Request $request)
     {
-        return redirect()->route('weather.index');
+        return redirect()->route('dashboard');
 
     }
 }
