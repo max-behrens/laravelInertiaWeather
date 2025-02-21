@@ -27,6 +27,7 @@ class DashboardAIService
         $aiResponse = $response->json('choices.0.message.content');
 
         Log::info('AI Response:', ['response' => $aiResponse]);
+        
 
         return $aiResponse;
     }
