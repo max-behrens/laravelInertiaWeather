@@ -31,16 +31,11 @@ made by openAI that uses current climate statics to contextualise the data.
 
 Thanks to https://github.com/bruzp/laravel-inertia.git for the inital template.
 
-<p align="right">(<a href="#top">back to top</a>)</p>
-
-
 ### Built With
 
 * [Inertia](https://inertiajs.com/)
 * [DaisyUI](https://daisyui.com/)
 * [Spatie Laravel Permission](https://spatie.be/docs/laravel-permission/v5/introduction)
-
-<p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
 ## Installation
