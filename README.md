@@ -11,12 +11,13 @@
       </ul>
     </li>
     <li>
-      <a href="#getting-started">Getting Started</a>
+      <a href="#installation">Installation</a>
       <ul>
-        <li><a href="#installation">Installation</a></li>
+        <li><a href="#part-1">### Part 1 - Set up codebase locally</a></li>
+        <li><a href="#part-2">### Part 2 - Set up .env with API Keys</a></li>
       </ul>
     </li>
-    <li><a href="#credentials">Credentials</a></li>
+    <li><a href="#user-log-in-details">User Log In Details</a></li>
   </ol>
 </details>
 
@@ -24,10 +25,11 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This project is created to learn and practice inertia; understand why it is created; and explore the power of INERTIA!
+This is my Laravel PHP Project (with Vue.js and Inertia), that fetches forecast data for an inputted city,
+and calculates a visual display of climate metrics based on the area's weather; informed by summarisations
+made by openAI that uses current climate statics to contextualise the data.
 
-This project consists of dashboard and frontend with lots of functionalities.
-It is also integrated with Spatie Laravel permissions and Nprogress.
+Thanks to https://github.com/bruzp/laravel-inertia.git for the inital template.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -41,15 +43,17 @@ It is also integrated with Spatie Laravel permissions and Nprogress.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- GETTING STARTED -->
-## Getting Started
+## Installation
 
-Follow these steps to try this out on your localhost.
+Follow these steps to run this project on your localhost.
 
-### Installation
+### Part 1
+
+Set up codebase locally:
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/bruzp/laravel-inertia.git
+   git clone git@github.com:max-behrens/laravelInertiaWeather.git
    ```
 2. Run composer install
    ```sh
@@ -90,18 +94,48 @@ Follow these steps to try this out on your localhost.
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 
-<!-- CREDENTIALS EXAMPLES -->
-## Credentials
+### Part 2
+
+Set up .env with API keys:
+
+1. Create an account on OpenAI's website,
+   Generate an API key from the OpenAI dashboard,
+   Add the following line to your .env file:
+   ```sh
+   OPENAI_API_KEY=your-openai-api-key e.g. 'sk-....'
+   ```
+2. Also locate your organisation key in the OpenAI dashboard,
+   and add the following line to your .env file:
+   (You may need to set up a subscription with openAI)
+   ```sh
+   OPENAI_ORGANISATION=your_org_id e.g: 'org-....'
+   ```
+3. Create an account on OpenWeatherMap.
+   Generate an API key for access to their weather data.
+   Add the following line to your .env file:
+   ```sh
+   WEATHER_API_KEY=your-weather-api-key
+   ```
+4. After adding the keys, run the following command to cache the configurations:
+   ```sh
+   php artisan config:cache
+   ```
+   
+<p align="right">(<a href="#top">back to top</a>)</p>
+
+
+<!-- User Log In Details -->
+## User Log In Details
 
 Admin User <br/>
-username: super_admin@example.com <br/>
+username: test_admin@test.com <br/>
 password: password <br/>
 
 Test User <br/>
 username: test@test.com <br/>
 password: password
 
-ReadOnly ser <br/>
+ReadOnly User <br/>
 username: test_readonly@test.com <br/>
 password: password
 
