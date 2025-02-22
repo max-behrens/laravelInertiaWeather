@@ -4,12 +4,20 @@ import { Head } from "@inertiajs/inertia-vue3";
 import BreezeButton from "@/Components/Button.vue";
 import { Link } from "@inertiajs/inertia-vue3";
 import { useForm } from "@inertiajs/inertia-vue3";
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 
 const props = defineProps({
     posts: {
         type: Object,
         default: () => ({}),
+    },
+    dialogueData: {
+        type: Object,
+        default: () => ({
+            calculationResults: {},
+            aiResponseResults: {},
+            chatbotMessages: [],
+        }),
     },
 });
 
@@ -18,6 +26,38 @@ const form = useForm({
     slug: '',
     content: '',
     featured_image: null,
+});
+
+// Set the content field with the dialogueData when the component is mounted
+onMounted(() => {
+    const { calculationResults, aiResponseResults, chatbotMessages } = props.dialogueData;
+    
+    let content = '';
+
+    if (calculationResults.city) {
+        content += `City: ${calculationResults.city}`;
+    }
+
+    if (calculationResults && calculationResults.trim() !== '') {
+        content += calculationResults;
+    }
+
+    if (aiResponseResults && aiResponseResults.trim() !== '') {
+        content += '\n\n' + aiResponseResults;
+    }
+
+    // Add Chatbot Messages if they exist and aren't empty
+    if (chatbotMessages && chatbotMessages.trim() !== '') {
+        content += '\n\n' + chatbotMessages;
+    }
+    
+    // Set the form content
+    form.content = content;
+    
+    // Store raw data for submission
+    form.calculationResults = calculationResults;
+    form.aiResponseResults = aiResponseResults;
+    form.chatbotMessages = chatbotMessages;
 });
 
 const submit = () => {
@@ -97,11 +137,15 @@ function fileChange(event) {
                                 </div>
                             </div>
                             <div class="mb-6">
-                                <label for="slug"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Content</label>
-                                <textarea type="text" v-model="form.content" name="content" id=""
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
-
+                                <label for="Content" 
+                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                    Content
+                                </label>
+                                <textarea 
+                                    v-model="form.content"
+                                    name="content" 
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 h-60"
+                                ></textarea>
                                 <div v-if="form.errors.content" class="text-sm text-red-600">
                                     {{ form.errors.content }}
                                 </div>

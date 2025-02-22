@@ -22,12 +22,12 @@ class PostController extends Controller
     public function index(Request $request, PostService $service)
     {
         $request->validate([
-            'field' => ['nullable', 'in:id,title,slug,created_at,username,updated_at'],
+            'field' => ['nullable', 'in:id,title,content,created_at,username,updated_at'],
             'direction' => ['nullable', 'in:asc,desc'],
             'search' => ['nullable'],
         ]);
 
-        Log::info('request:', ['request' => $request]);
+        Log::info('$service->datatable($request):', ['$service->datatable($request)' => $service->datatable($request)]);
 
         return Inertia::render(
             'Dashboard/Posts/Index',
@@ -35,22 +35,27 @@ class PostController extends Controller
         );
     }
 
-    public function create(Request $request)
+
+    public function create(Request $request, PostService $service)
     {
-        // Check for any query parameters for dialogue data (calculationData, aiResponseResults, chatbotMessages)
+
+        $chatbotMessages = json_decode($request->query('chatbotMessages', '[]'), true);
+
+        // Extract dialogue data
         $dialogueData = [
-            'calculationData' => json_decode($request->query('calculationData', '{}'), true),
-            'aiResponseResults' => json_decode($request->query('aiResponseResults', '{}'), true),
-            'chatbotMessages' => json_decode($request->query('chatbotMessages', '[]'), true),
+            'calculationResults' => $service->formatCalculationResults($request->query('calculationResults', '{}')),
+            'aiResponseResults' => $service->formatAiResponseResults($request->query('aiResponseResults', '{}')),
+            'chatbotMessages' => $service->formatChatbotMessages(json_decode($request->query('chatbotMessages', '[]'), true)),
         ];
 
-        // Pass dialogue data to the Create view (inertia)
-        return Inertia::render(
-            'Dashboard/Posts/Create',
-            [
-                'dialogueData' => $dialogueData, // Pass the dialogue data as props
-            ]
-        );
+        Log::info('dialogueData: ', [
+            'dialogueData' => $dialogueData
+        ]);
+
+        // Return Inertia response
+        return Inertia::render('Dashboard/Posts/Create', [
+            'dialogueData' => $dialogueData,
+        ]);
     }
 
 
@@ -58,36 +63,9 @@ class PostController extends Controller
     {
         // Prepare the data for the new post
         $postData = $request->safe()->except('featured_image'); // Keep all fields except 'featured_image'
-
+        
+    
         Log::info('REQUEST ADD POST ', ['$request' => $request]);
-
-
-        // Check if dialogue data is passed in the request
-        if ($request->has('slug')) {
-
-            Log::info('SLUG ');
-
-
-            Log::info('$request->city ', ['$request->city' => $request->city]);
-
-            // If slug is passed (containing dialogue data), assign it to the post's 'slug' field
-            $postData['slug'] = $request->input('slug');
-
-            // Check for any query parameters for dialogue data (calculationData, aiResponseResults, chatbotMessages)
-            $dialogueData = [
-                'calculationData' => $request->query('calculationData'),
-                'aiResponseResults' => $request->query('aiResponseResults'),
-                'chatbotMessages' => $request->query('chatbotMessages'),
-            ];
-
-            // Pass dialogue data to the Create view (inertia)
-            return Inertia::render(
-                'Dashboard/Posts/Create',
-                [
-                    'dialogueData' => $dialogueData, // Pass the dialogue data as props
-                ]
-            );
-        }
 
         // Create the post
         $post = Post::create($postData);
@@ -101,6 +79,9 @@ class PostController extends Controller
         // Return a response with the postId (if needed)
         return redirect()->route('posts.index')->with('message', 'Post Created Successfully');
     }
+
+
+
 
     public function edit(Post $post)
     {

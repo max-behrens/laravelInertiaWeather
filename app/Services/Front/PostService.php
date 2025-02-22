@@ -16,6 +16,7 @@ class PostService
                 'posts.user_id',
                 'posts.title',
                 'posts.slug',
+                'posts.content',
                 'posts.is_active',
                 'posts.featured_image',
                 'posts.created_at',

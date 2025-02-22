@@ -37,7 +37,7 @@ const form = useForm();
 function saveDialogue() {
     // Ensure the necessary data is available
     const dialogueData = {
-        calculationData: calculationResults.value,
+        calculationResults: calculationResults.value,
         aiResponseResults: aiResponseResults.value,
         chatbotMessages: chatbotMessages.value
     };
@@ -48,7 +48,7 @@ function saveDialogue() {
     axios.get(route('posts.create'), {
         title: 'Some title',  // You can provide a title here
         content: 'Some content',  // You can provide content here
-        calculationData: dialogueData.calculationData,
+        calculationResults: dialogueData.calculationResults,
         aiResponseResults: dialogueData.aiResponseResults,
         chatbotMessages: dialogueData.chatbotMessages
     })
@@ -254,12 +254,13 @@ async function fetchWeather() {
 
     // ✅ Ensure `calculationResults` is set before calling `askAI`
     calculationResults.value = {
+      city: city.value,
       temperatureChanges: response.data.temperatureChanges,
       humidityChanges: response.data.humidityChanges,
       pressureChanges: response.data.pressureChanges,
       averageTemperatureChanges: response.data.averageTemperatureChanges,
       averageHumidityChanges: response.data.averageHumidityChanges,
-      averagePressureChanges: response.data.averagePressureChanges
+      averagePressureChanges: response.data.averagePressureChanges,
     };
 
     aiResponseResults.value = {
@@ -510,14 +511,18 @@ function setCityInput(input) {
 
 
                                <!-- Save Dialogue Button -->
-                                <div class="mt-10">
-                                    <Link
-                                        class="btn btn-accent"
-                                        :href="route('posts.create', { calculationData: JSON.stringify(calculationData), aiResponseResults: JSON.stringify(aiResponseResults), chatbotMessages: JSON.stringify(chatbotMessages) })"
-                                    >
-                                        Save Dialogue
-                                    </Link>
-                                </div>
+                              <div class="mt-10">
+                                  <Link
+                                      class="btn btn-accent"
+                                        :href="route('posts.create', { 
+                                            calculationResults: JSON.stringify(calculationResults), 
+                                            aiResponseResults: JSON.stringify(aiResponseResults), 
+                                            chatbotMessages: JSON.stringify(chatbotMessages) 
+                                        })"
+                                  >
+                                      Save Dialogue
+                                  </Link>
+                              </div>
 
                               </div>
 

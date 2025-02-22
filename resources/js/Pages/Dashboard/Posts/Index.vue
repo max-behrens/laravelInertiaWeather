@@ -78,7 +78,7 @@ function setSearchInput(input, event) {
             <h2 class="text-xl font-semibold leading-tight text-gray-800"> User Posts </h2>
         </template>
         <div class="py-12">
-            <div class="mx-auto max-w-7xl sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-9xl sm:px-6 lg:px-8">
                 <div v-if="$page.props.flash.message" class="alert alert-success shadow-lg mb-5">
                     <div>
                         <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none"
@@ -129,8 +129,8 @@ function setSearchInput(input, event) {
                                                 <div class="font-semibold">Username:</div>
                                                 <div>{{ post.username_limited }}</div>
                                                 
-                                                <div class="font-semibold">Slug:</div>
-                                                <div>{{ post.slug_limited }}</div>
+                                                <div class="font-semibold">Content:</div>
+                                                <div>{{ post.content_limited }}</div>
                                             </div>
 
                                             <!-- Actions -->
@@ -160,11 +160,11 @@ function setSearchInput(input, event) {
 
                                 <!-- Desktop view -->
                                 <div class="hidden md:block overflow-x-auto">
-                                    <table class="table table-compact w-full text-center table-zebra">
+                                    <table class="table table-compact w-full text-center table-zebra border-collapse overflow-x-auto">
                                         <thead
                                             class=" text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400 ">
                                             <tr>
-                                                <th>Image</th>
+                                                <th class="sticky top-0 ">Image</th>
                                                 <th scope="col" class="px-6 py-3" @click="sort('id')">
                                                     <span class="inline-flex px-6 py-3 w-full justify-between">
                                                         #
@@ -192,12 +192,12 @@ function setSearchInput(input, event) {
                                                         </SortArrowDown>
                                                     </span>
                                                 </th>
-                                                <th scope="col" class="px-6 py-3" @click="sort('slug')">
-                                                    <span class="inline-flex px-6 py-3 w-full justify-between">
-                                                        Slug
-                                                        <SortArrowUp v-if="determineSortDirection('slug', 'asc')">
+                                                <th scope="col" class="px-6 py-3" @click="sort('content')">
+                                                    <span class="inline-flex px-6 py-3 w-full justify-between items-center text-center">
+                                                        Content
+                                                        <SortArrowUp v-if="determineSortDirection('content', 'asc')">
                                                         </SortArrowUp>
-                                                        <SortArrowDown v-if="determineSortDirection('slug', 'desc')">
+                                                        <SortArrowDown v-if="determineSortDirection('content', 'desc')">
                                                         </SortArrowDown>
                                                     </span>
                                                 </th>
@@ -210,7 +210,7 @@ function setSearchInput(input, event) {
                                             <tr v-for="post in posts.data" :key="post.id"
                                                 class=" bg-white border-b dark:bg-gray-800 ">
                                                 <td scope="row"
-                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap whitespace-normal break-words">
                                                     <div class="avatar">
                                                         <div class="w-20 rounded">
                                                             <img :src="post.featured_image ? '/storage/' + post.featured_image : '/images/example-image.png'"
@@ -230,9 +230,9 @@ function setSearchInput(input, event) {
                                                     :title="post.username">
                                                     {{ post.username_limited }} </td>
                                                 <td scope="row"
-                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap "
-                                                    :title="post.slug">
-                                                    {{ post.slug_limited }} </td>
+                                                    class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-normal break-words "
+                                                    :title="post.content">
+                                                    {{ post.content_limited }} </td>
                                                 <td scope="row"
                                                     class=" px-6 py-4 font-medium text-gray-900 dark:text-white whitespace-nowrap ">
                                                     <div v-if="post.permissions.publish && post.permissions.unpublish">

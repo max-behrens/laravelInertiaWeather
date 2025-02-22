@@ -103,7 +103,7 @@ function fileChange(event) {
                                 <label for="slug"
                                     class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300">Content</label>
                                 <textarea type="text" v-model="form.content"
-                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 h-60"></textarea>
 
                                 <div v-if="form.errors.content" class="text-sm text-red-600">
                                     {{ form.errors.content }}

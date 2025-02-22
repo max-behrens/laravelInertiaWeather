@@ -62,7 +62,7 @@ class WeatherController extends Controller
             'humidityChanges' => $humidityChanges,
             'averageHumidityChanges' => $this->weatherCalculationService->calculateAverageRateOfChange($humidityChanges),
             'pressureChanges' => $pressureChanges,
-            'averagePressureChanges' => $this->weatherCalculationService->calculateAverageRateOfChange($pressureChanges)
+            'averagePressureChanges' => $this->weatherCalculationService->calculateAverageRateOfChange($pressureChanges),
         ];
 
         Log::info('$request->city 3 ', ['$request->city' => $request->city]);
