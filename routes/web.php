@@ -42,6 +42,8 @@ Route::prefix('dashboard')
         
         Route::post('/weather/get-data', [WeatherController::class, 'getWeather'])->name('weather.getData');
 
+        // Route::get('/dashboard/posts/create', [DashboardPostController::class, 'store'])->name('posts.create');
+
 
         Route::post('/ask-openai', [DashboardAIController::class, 'askOpenAI']);
 

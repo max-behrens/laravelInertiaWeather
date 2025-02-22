@@ -29,28 +29,76 @@ class PostController extends Controller
 
         Log::info('request:', ['request' => $request]);
 
-
         return Inertia::render(
             'Dashboard/Posts/Index',
             $service->datatable($request)
         );
     }
 
-    public function create()
+    public function create(Request $request)
     {
+        // Check for any query parameters for dialogue data (calculationData, aiResponseResults, chatbotMessages)
+        $dialogueData = [
+            'calculationData' => json_decode($request->query('calculationData', '{}'), true),
+            'aiResponseResults' => json_decode($request->query('aiResponseResults', '{}'), true),
+            'chatbotMessages' => json_decode($request->query('chatbotMessages', '[]'), true),
+        ];
+
+        // Pass dialogue data to the Create view (inertia)
         return Inertia::render(
-            'Dashboard/Posts/Create'
+            'Dashboard/Posts/Create',
+            [
+                'dialogueData' => $dialogueData, // Pass the dialogue data as props
+            ]
         );
     }
 
+
     public function store(StorePostRequest $request, PostService $service)
     {
-        $post = Post::create($request->safe()->except('featured_image'));
+        // Prepare the data for the new post
+        $postData = $request->safe()->except('featured_image'); // Keep all fields except 'featured_image'
 
+        Log::info('REQUEST ADD POST ', ['$request' => $request]);
+
+
+        // Check if dialogue data is passed in the request
+        if ($request->has('slug')) {
+
+            Log::info('SLUG ');
+
+
+            Log::info('$request->city ', ['$request->city' => $request->city]);
+
+            // If slug is passed (containing dialogue data), assign it to the post's 'slug' field
+            $postData['slug'] = $request->input('slug');
+
+            // Check for any query parameters for dialogue data (calculationData, aiResponseResults, chatbotMessages)
+            $dialogueData = [
+                'calculationData' => $request->query('calculationData'),
+                'aiResponseResults' => $request->query('aiResponseResults'),
+                'chatbotMessages' => $request->query('chatbotMessages'),
+            ];
+
+            // Pass dialogue data to the Create view (inertia)
+            return Inertia::render(
+                'Dashboard/Posts/Create',
+                [
+                    'dialogueData' => $dialogueData, // Pass the dialogue data as props
+                ]
+            );
+        }
+
+        // Create the post
+        $post = Post::create($postData);
+
+        // Store the featured image (if applicable)
         $path = $service->storeFeaturedImage($post, $request);
 
+        // Update the post with the featured image path
         $service->updatePostFeaturedImage($post, $path);
 
+        // Return a response with the postId (if needed)
         return redirect()->route('posts.index')->with('message', 'Post Created Successfully');
     }
 
@@ -98,4 +146,5 @@ class PostController extends Controller
 
         return redirect()->route('posts.index')->with('message', sprintf('Post %s Successfully', $request->is_active ? 'Published' : 'Unpublished'));
     }
+
 }

@@ -8,6 +8,8 @@ import SortArrowDown from "@/Components/SortArrowDown.vue";
 import { Inertia } from "@inertiajs/inertia";
 import { useForm } from "@inertiajs/inertia-vue3";
 import { usePage } from '@inertiajs/inertia-vue3';
+import WeatherChartComponent from '@/Components/WeatherChartComponent.vue';
+import { Link } from "@inertiajs/inertia-vue3";
 import axios from 'axios';
 import { ref, reactive, watch, onMounted } from 'vue';
 
@@ -27,6 +29,40 @@ const aiResponse = ref('');  // AI response for the chatbot
 const isChatbotOpen = ref(false);  // Toggle for chatbot
 const chatbotInput = ref('');  // User input for chatbot
 const chatbotMessages = ref([]);  // Store chat messages
+
+
+const form = useForm();
+
+// Method to save dialogue
+function saveDialogue() {
+    // Ensure the necessary data is available
+    const dialogueData = {
+        calculationData: calculationResults.value,
+        aiResponseResults: aiResponseResults.value,
+        chatbotMessages: chatbotMessages.value
+    };
+
+    console.log('dialogueData: ', dialogueData);
+
+    // Send the data to the backend to create the post
+    axios.get(route('posts.create'), {
+        title: 'Some title',  // You can provide a title here
+        content: 'Some content',  // You can provide content here
+        calculationData: dialogueData.calculationData,
+        aiResponseResults: dialogueData.aiResponseResults,
+        chatbotMessages: dialogueData.chatbotMessages
+    })
+    .then(response => {
+        // Do something with the response if necessary
+        console.log('Post created with response:', response);
+    })
+    .catch(error => {
+        console.error('Error creating post:', error);
+    });
+}
+
+
+
 
 // Toggle chatbot visibility
 const toggleChatbot = () => {
@@ -99,11 +135,20 @@ const askAI = async (isUserInitiated = false, cityName = '', calculationResults 
 
 
 
+
 // Props from parent component
 const props = defineProps({
   weather: {
     type: Object,
     default: () => ({}),
+  },
+  posts: {
+      type: Object,
+      default: () => ({}),
+  },
+  postId: {
+    type: [String, Number], // Define the type based on the expected type
+    default: null,           // Default to null if not passed
   },
   filters: {
     type: Object,
@@ -154,19 +199,27 @@ function getDaySuffix(day) {
   }
 }
 
-// Watch for route changes
-watch(
-  () => usePage().url.value,
-  (newUrl) => {
-    Inertia.reload({ preserveScroll: true });
-  }
-);
-
-// Watch for params changes
 const params = reactive({
   city: props.filters.city,
   field: props.filters.field,
   direction: props.filters.direction,
+});
+
+// Watch for changes in the `params`
+watch(params, () => {
+    let p = params;
+
+    Object.keys(p).forEach(key => {
+        if (p[key] == '') {
+            delete p[key]; // Remove empty values
+        }
+    });
+
+    // Reload the page (preserve scroll state)
+    Inertia.reload({ preserveScroll: true });
+
+    // Send the data to the route for saving chat
+    // Inertia.post(route('posts.saveChat'), p, { preserveState: true, preserveScroll: true });
 });
 
 // Fetch weather data method
@@ -182,7 +235,8 @@ async function fetchWeather() {
     console.log('HERE 1');
 
 
-    const response = await axios.post(route('weather.getData'), { city: city.value });
+
+    const response = await axios.post(route('weather.getData'), { city: city.value, postId: props.postId });
 
     console.log('HERE 2');
 
@@ -229,7 +283,6 @@ async function fetchWeather() {
     forecastData.value = null;
     calculationResults.value = null;  // Reset it to `null` in case of error
     aiResponseResults.value = null;
-    localTime.value = getCurrentTime();
     console.error(error);
   }
 }
@@ -268,7 +321,7 @@ function setCityInput(input) {
                             <div class="mt-6 mb-6">
                                 <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300">Weather API</label>
                             </div>
-                            <div class="overflow-x-auto">
+                            <div class="overflow-x-clip">
                                 <!-- Error message display -->
                                 <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
 
@@ -451,6 +504,23 @@ function setCityInput(input) {
 
 
                               </div>
+                              <div v-if="calculationResults" class="mt-20 mb-20">
+                                <h3 class="text-xl font-semibold mb-4 text-center">Weather Data Visuals</h3>
+                                <WeatherChartComponent v-if="calculationResults" :calculationResults="calculationResults" />
+
+
+                               <!-- Save Dialogue Button -->
+                                <div class="mt-10">
+                                    <Link
+                                        class="btn btn-accent"
+                                        :href="route('posts.create', { calculationData: JSON.stringify(calculationData), aiResponseResults: JSON.stringify(aiResponseResults), chatbotMessages: JSON.stringify(chatbotMessages) })"
+                                    >
+                                        Save Dialogue
+                                    </Link>
+                                </div>
+
+                              </div>
+
 
                             </div>
                         </div>

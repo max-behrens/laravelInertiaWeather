@@ -82,7 +82,7 @@ class WeatherController extends Controller
             'averagePressureChanges' => $calculationResults['averagePressureChanges'],
             'temperatureExplanation' => $aiDataExplanations['temperatureExplanation'],
             'humidityExplanation' => $aiDataExplanations['humidityExplanation'],
-            'pressureExplanation' => $aiDataExplanations['pressureExplanation']
+            'pressureExplanation' => $aiDataExplanations['pressureExplanation'],
         ]);
     }
 }
