@@ -7,9 +7,96 @@ import SortArrowUp from "@/Components/SortArrowUp.vue";
 import SortArrowDown from "@/Components/SortArrowDown.vue";
 import { Inertia } from "@inertiajs/inertia";
 import { useForm } from "@inertiajs/inertia-vue3";
-// import { useDateFormat, useNow } from '@vueuse/core'
 import { usePage } from '@inertiajs/inertia-vue3';
-import { ref, watch, reactive, onMounted } from 'vue';
+import axios from 'axios';
+import { ref, reactive, watch, onMounted } from 'vue';
+
+// Reactive variables
+const city = ref('');  // City name for weather
+const weatherData = ref(null);  // Weather data object
+const forecastData = ref(null);  // Forecast data object
+const aiResponseResults = ref({
+    temperatureExplanation: '**',  // Default placeholder
+    humidityExplanation: '**',
+    pressureExplanation: '**'
+});
+const calculationResults = ref(null);  // For storing errors
+const errorMessage = ref(null);  // For storing errors
+const userInput = ref('');  // Input for the chatbot
+const aiResponse = ref('');  // AI response for the chatbot
+const isChatbotOpen = ref(false);  // Toggle for chatbot
+const chatbotInput = ref('');  // User input for chatbot
+const chatbotMessages = ref([]);  // Store chat messages
+
+// Toggle chatbot visibility
+const toggleChatbot = () => {
+    isChatbotOpen.value = !isChatbotOpen.value;
+};
+
+// Send message to chatbot
+const sendMessage = async () => {
+    if (chatbotInput.value.trim() === "") return;
+    
+    const userMessage = chatbotInput.value;
+    chatbotMessages.value.push({ text: userMessage, isUser: true });
+
+    try {
+        const calculationData = weatherData.value || {};  // Include weather data if available
+        await askAI(true, city.value, calculationData);
+        chatbotMessages.value.push({ text: aiResponse.value, isUser: false });
+        chatbotInput.value = '';  // Clear input after sending
+
+        // Open chatbot if it's closed
+        if (!isChatbotOpen.value) {
+            toggleChatbot(); // This ensures the chatbot opens once a message is sent
+        }
+    } catch (error) {
+        chatbotMessages.value.push({ text: "Error: Unable to get AI response.", isUser: false });
+        console.error("Chatbot AI Error:", error);
+    }
+};
+
+// Request AI response
+const chatbotAIResponse = ref(''); // New variable for chatbot messages
+
+const askAI = async (isUserInitiated = false, cityName = '', calculationResults = {}) => {
+    if (!isUserInitiated && !chatbotInput.value.trim()) return;
+
+    try {
+        let requestData = isUserInitiated
+            ? { user_input: chatbotInput.value, city: cityName, calculationResults }
+            : { weather_explanations: calculationResults, city: cityName };
+
+        console.log('requestData: ', requestData);
+
+        const { data } = await axios.post('/api/ask-openai', requestData);
+
+        // ✅ Separate chatbot AI response from weather explanations
+        if (isUserInitiated) {
+            chatbotAIResponse.value = data.aiResponse; // Store chatbot AI response separately
+            chatbotMessages.value.push({ text: chatbotAIResponse.value, isUser: false });
+        } else {
+          aiResponseResults.value = {
+              temperatureExplanation: data.temperatureExplanation || aiResponseResults.value.temperatureExplanation,
+              humidityExplanation: data.humidityExplanation || aiResponseResults.value.humidityExplanation,
+              pressureExplanation: data.pressureExplanation || aiResponseResults.value.pressureExplanation,
+          };
+        }
+
+        console.log('chatbotAIResponse.value:', chatbotAIResponse.value);
+        console.log('aiResponseResults:', aiResponseResults.value);
+    } catch (error) {
+        console.error('Error fetching AI response:', error);
+
+        if (isUserInitiated) {
+            chatbotAIResponse.value = 'Error: Unable to get a response from AI.';
+            chatbotMessages.value.push({ text: chatbotAIResponse.value, isUser: false });
+        }
+    }
+};
+
+
+
 
 
 // Props from parent component
@@ -24,13 +111,6 @@ const props = defineProps({
   }
 });
 
-// Reactive variables
-const city = ref('');  // Declare city as a ref
-const weatherData = ref(null);
-const forecastData = ref(null);
-const calculationResults = ref(null);
-const errorMessage = ref(null);
-const localTime = ref('');  // Declare reactive state for local time
 
 // Utility function to get current formatted system time
 function getCurrentTime() {
@@ -94,24 +174,31 @@ async function fetchWeather() {
   errorMessage.value = null;  // Clear previous error message
 
   try {
-    if (!city.value) {  // Use .value to check the reactive value
+    if (!city.value) {
       errorMessage.value = 'Please enter a city name';
       return;
     }
 
-    const response = await axios.post(route('weather.getData'), {
-      city: city.value
-    });
+    console.log('HERE 1');
+
+
+    const response = await axios.post(route('weather.getData'), { city: city.value });
+
+    console.log('HERE 2');
+
 
     console.log('response: ', response);
 
     weatherData.value = response.data;
-    // Process each forecast's time and store formatted date
     forecastData.value = response.data.forecasts.map(forecast => ({
       ...forecast,
       formattedTime: formatDate(forecast.time)
     }));
 
+    console.log('HERE 3');
+
+
+    // ✅ Ensure `calculationResults` is set before calling `askAI`
     calculationResults.value = {
       temperatureChanges: response.data.temperatureChanges,
       humidityChanges: response.data.humidityChanges,
@@ -121,40 +208,43 @@ async function fetchWeather() {
       averagePressureChanges: response.data.averagePressureChanges
     };
 
+    aiResponseResults.value = {
+      temperatureExplanation: response.data.temperatureExplanation,
+      humidityExplanation: response.data.humidityExplanation,
+      pressureExplanation: response.data.pressureExplanation,
+    };
+
+    console.log('HERE 5');
+
+
+    // ✅ Only call AI if `calculationResults` is not empty
+    if (calculationResults.value) {
+      await askAI(false, city.value, calculationResults.value); // Pass `calculationResults` to `askAI`
+      chatbotMessages.value.push({ text: aiResponse.value, isUser: false });
+    }
+
   } catch (error) {
     errorMessage.value = 'City not recognized. Please enter a valid city name';
     weatherData.value = null;
     forecastData.value = null;
-    calculationResults.value = null;
+    calculationResults.value = null;  // Reset it to `null` in case of error
+    aiResponseResults.value = null;
     localTime.value = getCurrentTime();
     console.error(error);
   }
 }
 
-const formatKey = (key) => {
-  return key
-    .replace(/([A-Z])/g, ' $1') // Add space before uppercase letters
-    .replace(/^./, str => str.toUpperCase()) // Capitalize first letter
-    .replace('Changes', ' Rate of Change (%)'); // Make labels more meaningful
-};
+
+
 // Set city input method
 function setCityInput(input) {
   params.city = input;
   city.value = input; // Update the reactive city variable
 }
 
-// Watch for filter changes from props
-watch(
-  () => props.filters,
-  (newFilters) => {
-    params.city = newFilters.city;
-    params.field = newFilters.field;
-    params.direction = newFilters.direction;
-  },
-  { immediate: true, deep: true }
-);
 
 </script>
+
 
 <template>
     <Head title="Weather" />
@@ -173,7 +263,7 @@ watch(
                     </div>
                 </div>
                 <div class="bg-white shadow-sm sm:rounded-lg">
-                    <div class="p-6 bg-white border-b border-gray-200">
+                    <div class="p-8 bg-white border-b border-gray-200">
                         <div class="relative">
                             <div class="mt-6 mb-6">
                                 <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-gray-300">Weather API</label>
@@ -188,30 +278,178 @@ watch(
                                     <button @click="fetchWeather" class="fetch-button mt-4 btn btn-accent block max-w-ws"><strong>Get Weather</strong></button>
                                 </div>
 
-                                <!-- Weather Forecast Results -->
-                                <div v-if="forecastData" class="mt-10 bg-gray-50 p-5 rounded-lg shadow-md">
-                                  <h3 class="text-xl font-semibold mb-4 text-center">Daily Average Forecast for {{ city }}</h3>
-                                  <div class="flex space-x-4 overflow-x-auto justify-between">
-                                    <div v-for="(forecast, index) in forecastData" :key="index" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative w-64">
-                                      <h4 class="text-lg font-semibold mb-2">{{ forecast.formattedTime }}</h4>
-                                      <p><strong>Temperature:</strong> {{ forecast.temperature.toFixed(2) }}°C</p>
-                                      <p><strong>Feels Like:</strong> {{ forecast.feels_like.toFixed(2) }}°C</p>
-                                      <p><strong>Humidity:</strong> {{ forecast.humidity }}%</p>
-                                      <p><strong>Pressure:</strong> {{ forecast.pressure }} hPa</p>
+                                <div class="block md:block lg:overflow-x-auto">
+
+
+                                  <!-- Mobile View -->
+                                  <div class="block md:hidden">
+                                      <!-- Weather Forecast Results -->
+                                      <div v-if="forecastData" class="mt-10">
+                                          <h3 class="text-lg font-semibold mb-4 text-center">Daily Average Forecast for {{ city }}</h3>
+                                          <div class="grid grid-cols-1 gap-4">
+                                              <div v-for="(forecast, index) in forecastData" :key="index" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="text-md font-semibold mb-2">{{ forecast.formattedTime }}</h4>
+                                                  <p><strong>Temperature:</strong> {{ forecast.temperature.toFixed(2) }}°C</p>
+                                                  <p><strong>Feels Like:</strong> {{ forecast.feels_like.toFixed(2) }}°C</p>
+                                                  <p><strong>Humidity:</strong> {{ forecast.humidity }}%</p>
+                                                  <p><strong>Pressure:</strong> {{ forecast.pressure }} hPa</p>
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      <!-- Weather Calculation Results -->
+                                      <div v-if="calculationResults" class="mt-10">
+                                          <h3 class="text-lg font-semibold mb-4 text-center">Weather Fluctuation Values</h3>
+
+                                          <div class="grid grid-cols-1 gap-4">
+                                              <div v-if="calculationResults.temperatureChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Temperature Changes</h4>
+                                                  <p>Rate of Change Between Each Day: {{ calculationResults.temperatureChanges.join(', ') }}</p>
+                                                  <p>Overall Average Rate of Change: {{ calculationResults.averageTemperatureChanges }}</p>
+                                              </div>
+
+                                              <div v-if="calculationResults.humidityChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Humidity Changes</h4>
+                                                  <p>Rate of Change Between Each Day: {{ calculationResults.humidityChanges.join(', ') }}</p>
+                                                  <p>Overall Average Rate of Change: {{ calculationResults.averageHumidityChanges }}</p>
+                                              </div>
+
+                                              <div v-if="calculationResults.pressureChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Pressure Changes</h4>
+                                                  <p>Rate of Change Between Each Day: {{ calculationResults.pressureChanges.join(', ') }}</p>
+                                                  <p>Overall Average Rate of Change: {{ calculationResults.averagePressureChanges }}</p>
+                                              </div>
+                                          </div>
+                                      </div>
+
+                                      <!-- AI-Generated Weather Insights -->
+                                      <div v-if="aiResponseResults && aiResponseResults.temperatureExplanation !== '**'" class="mt-10">
+                                          <h3 class="text-lg font-semibold mb-4 text-center">Fluctuation Data Contextualised by OpenAI</h3>
+
+                                          <div class="grid grid-cols-1 gap-4">
+                                              <div v-if="aiResponseResults.temperatureExplanation" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Temperature</h4>
+                                                  <p>{{ aiResponseResults.temperatureExplanation }}</p>
+                                              </div>
+
+                                              <div v-if="aiResponseResults.humidityExplanation" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Humidity</h4>
+                                                  <p>{{ aiResponseResults.humidityExplanation }}</p>
+                                              </div>
+
+                                              <div v-if="aiResponseResults.pressureExplanation" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg">
+                                                  <h4 class="font-semibold">Pressure</h4>
+                                                  <p>{{ aiResponseResults.pressureExplanation }}</p>
+                                              </div>
+                                          </div>
+                                      </div>
+                                  </div>
+
+
+
+
+
+
+
+                                  <!-- Desktop View -->
+
+                                  <!-- Weather Forecast Results -->
+                                <div class="hidden md:block overflow-x-auto">
+                                  <div v-if="forecastData" class="mt-10">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Daily Average Forecast for {{ city }}</h3>
+                                    <div class="flex space-x-4 overflow-x-auto justify-between">
+                                      <div v-for="(forecast, index) in forecastData" :key="index" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative w-64">
+                                        <h4 class="text-lg font-semibold mb-2">{{ forecast.formattedTime }}</h4>
+                                        <p><strong>Temperature:</strong> {{ forecast.temperature.toFixed(2) }}°C</p>
+                                        <p><strong>Feels Like:</strong> {{ forecast.feels_like.toFixed(2) }}°C</p>
+                                        <p><strong>Humidity:</strong> {{ forecast.humidity }}%</p>
+                                        <p><strong>Pressure:</strong> {{ forecast.pressure }} hPa</p>
+                                      </div>
                                     </div>
+                                  </div>
+
+                                  <!-- Weather Calculation Results -->
+                                  <div v-if="calculationResults" class="mt-20">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Weather Fluctuation Values</h3>
+
+                                    <!-- Group temperature, humidity, and pressure changes -->
+                                    <div class="flex space-x-4 overflow-x-auto justify-between">
+                                        <div v-if="calculationResults.temperatureChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative">
+                                            <h4 class="font-semibold">Temperature Changes</h4>
+                                            <p>Rate of Change Between Each Day: {{ calculationResults.temperatureChanges.join(', ') }}</p>
+                                            <p>Overall Average Rate of Change: {{ calculationResults.averageTemperatureChanges }}</p>
+                                        </div>
+
+                                        <div v-if="calculationResults.humidityChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative">
+                                            <h4 class="font-semibold">Humidity Changes</h4>
+                                            <p>Rate of Change Between Each Day: {{ calculationResults.humidityChanges.join(', ') }}</p>
+                                            <p>Overall Average Rate of Change: {{ calculationResults.averageHumidityChanges }}</p>
+                                        </div>
+
+                                        <div v-if="calculationResults.pressureChanges" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative">
+                                            <h4 class="font-semibold">Pressure Changes</h4>
+                                            <p>Rate of Change Between Each Day: {{ calculationResults.pressureChanges.join(', ') }}</p>
+                                            <p>Overall Average Rate of Change: {{ calculationResults.averagePressureChanges }}</p>
+                                        </div>
+                                    </div>
+                                  </div>
+
+
+                                  <!-- AI-Generated Weather Insights -->
+                                  <div v-if="aiResponseResults && Object.keys(aiResponseResults).length > 0 && aiResponseResults.temperatureExplanation !== '**'" class="mt-10">
+                                    <h3 class="text-xl font-semibold mb-4 text-center">Fluctuation Data Contextualised By OpenAI</h3>
+                                      <div class="flex space-x-4 overflow-x-auto justify-between">
+                                          <div v-if="aiResponseResults.temperatureExplanation" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                                              <h4 class="font-semibold">Temperature</h4>
+                                              <p>{{ aiResponseResults.temperatureExplanation }}</p>
+                                          </div>
+                                          <div v-if="aiResponseResults.humidityExplanation" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                                              <h4 class="font-semibold">Humidity</h4>
+                                              <p>{{ aiResponseResults.humidityExplanation }}</p>
+                                          </div>
+                                          <div v-if="aiResponseResults.pressureExplanation" class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
+                                              <h4 class="font-semibold">Pressure</h4>
+                                              <p>{{ aiResponseResults.pressureExplanation }}</p>
+                                          </div>
+                                      </div>
                                   </div>
                                 </div>
 
-                               <!-- Weather Calculation Results -->
-                              <div v-if="calculationResults" class="mt-10 bg-gray-50 p-5 rounded-lg shadow-md">
-                                <h3 class="text-xl font-semibold mb-4 text-center">Weather Fluctuation Values</h3>
 
-                                <!-- Temperature, Humidity, Pressure Changes -->
-                                <div v-for="(value, key) in calculationResults" :key="key" class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded-lg relative mb-4">
-                                  <h4 class="font-semibold">{{ formatKey(key) }}</h4>
-                                  <p v-if="Array.isArray(value)">Rate of Change Between Each Day: {{ value.join(', ') }}</p>
-                                  <p v-else>Overall {{ formatKey(key) }}: {{ value }}</p>
+                                <!-- ✅ Always Visible Chatbot Widget -->
+                                <div class="top-5 right-5 mt-12 z-50">
+                                    <!-- Chatbot Toggle Button -->
+                                    <button @click="toggleChatbot" class="bg-blue-500 text-white px-4 py-2 rounded-full shadow-lg">
+                                        💬 Chat with AI
+                                    </button>
+
+                                    <!-- Chatbot Window -->
+                                    <div v-if="isChatbotOpen" class="bg-white border border-gray-300 shadow-lg rounded-lg p-4 w-full">
+                                        <div class="flex justify-between items-center border-b pb-2">
+                                            <h4 class="text-lg font-semibold">Chatbot</h4>
+                                            <button @click="toggleChatbot" class="text-red-500">✖</button>
+                                        </div>
+                                        
+                                        <!-- Chat Messages -->
+                                        <div class="chatbot-messages h-60 overflow-y-auto p-2">
+                                            <div v-for="(message, index) in chatbotMessages" :key="index" class="mb-2">
+                                                <div :class="message.isUser ? 'text-right' : 'text-left'">
+                                                    <span :class="message.isUser ? 'bg-blue-200' : 'bg-gray-200'" class="inline-block px-3 py-2 rounded">
+                                                        {{ message.text }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Chat Input Field -->
+                                        <div class="mt-2 flex">
+                                            <input v-model="chatbotInput" type="text" class="border px-2 py-1 flex-1 rounded-l" placeholder="Type a message..." />
+                                            <button @click="sendMessage" class="bg-blue-500 text-white px-3 py-1 rounded-r">Send</button>
+                                        </div>
+                                    </div>
                                 </div>
+
+
                               </div>
 
                             </div>
