@@ -55,7 +55,7 @@ class PostService
                 'unpublish' => Auth::user()->can('unpublish', $post),
             ];
 
-            $post->content_limited = Str::of($post->content)->limit(100);
+            $post->content_limited = Str::of($post->content)->limit(300);
             $post->title_limited = Str::of($post->title)->limit(15);
             $post->username_limited = Str::of($post->username)->limit(15);
 

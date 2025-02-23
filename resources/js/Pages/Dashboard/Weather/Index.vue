@@ -244,10 +244,16 @@ async function fetchWeather() {
     console.log('response: ', response);
 
     weatherData.value = response.data;
-    forecastData.value = response.data.forecasts.map(forecast => ({
-      ...forecast,
-      formattedTime: formatDate(forecast.time)
-    }));
+    forecastData.value = response.data.forecasts.map(forecast => {
+      // Increment the forecast's date by one day
+      const forecastDate = new Date(forecast.time);
+      forecastDate.setDate(forecastDate.getDate() + 1);  // Add 1 day
+
+      return {
+        ...forecast,
+        formattedTime: formatDate(forecastDate), // Update the formatted time after shifting the date
+      };
+    });
 
     console.log('HERE 3');
 

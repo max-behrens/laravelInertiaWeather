@@ -46,7 +46,7 @@ class WeatherController extends Controller
         $stepSize = max(1, ceil($totalDataPoints / 5));
 
         $selectedForecasts = [];
-        for ($i = 1; $i < $totalDataPoints; $i += $stepSize) {
+        for ($i = 0; $i < $totalDataPoints; $i += $stepSize) {
             $selectedForecasts[] = $weatherData[$i];
             if (count($selectedForecasts) >= 5) break;
         }
