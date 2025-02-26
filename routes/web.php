@@ -6,6 +6,7 @@ use Illuminate\Foundation\Application;
 use App\Http\Controllers\Front\IndexController;
 use App\Http\Controllers\Dashboard\WeatherController;
 use App\Http\Controllers\Dashboard\DashboardAIController;
+use App\Http\Controllers\Dashboard\ParseXmlController;
 use App\Http\Controllers\Front\PostController as FrontPostController;
 use App\Http\Controllers\Dashboard\PostController as DashboardPostController;
 
@@ -48,6 +49,14 @@ Route::prefix('dashboard')
         Route::get('/vue-react-page', function () {
             return Inertia::render('Dashboard/React/VueReactPage');
         })->name('react.index');
+
+        Route::get('/angular-demo', function () {
+            return Inertia::render('Dashboard/Angular/AngularDemo');
+        })->name('angular.demo');
+
+
+        Route::get('/parse-xml', [ParseXmlController::class, 'show'])->name('parse-xml');
+        Route::get('/parse-xml/timestamps', [ParseXmlController::class, 'getTimestamps']);
 
 
 

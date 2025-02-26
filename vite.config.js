@@ -2,14 +2,14 @@ import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 import vue from '@vitejs/plugin-vue';
 import react from '@vitejs/plugin-react';
-
+import path from 'path';
 
 export default defineConfig({
-    // resolve: {
-    //     alias: {
-    //         'ziggy-js': path.resolve('resources/js/ziggy-js'),
-    //     }
-    // },
+    resolve: {
+        alias: {
+            '@': path.resolve(__dirname, 'resources/js'),
+        }
+    },
     plugins: [
         laravel({
             input: 'resources/js/app.js',
@@ -25,4 +25,7 @@ export default defineConfig({
         }),
         react(),
     ],
+    optimizeDeps: {
+        include: ['@angular/core', '@angular/common', 'rxjs', 'zone.js']
+    }
 });

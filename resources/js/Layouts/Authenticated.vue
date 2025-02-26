@@ -34,10 +34,16 @@ const showingNavigationDropdown = ref(false);
                                     Posts
                                 </BreezeNavLink>
                                 <BreezeNavLink :href="route('weather.index')" :active="route().current('weather.index')">
-                                    Weather
+                                    Weather API
+                                </BreezeNavLink>
+                                <BreezeNavLink :href="route('parse-xml')" :active="route().current('parse-xml')">
+                                    XML Parser
                                 </BreezeNavLink>
                                 <BreezeNavLink :href="route('react.index')" :active="route().current('react.index')">
                                     React Page
+                                </BreezeNavLink>
+                                <BreezeNavLink :href="route('angular.demo')" :active="route().current('angular.demo')">
+                                    Angular Page
                                 </BreezeNavLink>
                             </div>
                         </div>
@@ -89,10 +95,16 @@ const showingNavigationDropdown = ref(false);
                             Posts
                         </BreezeResponsiveNavLink>
                         <BreezeResponsiveNavLink :href="route('weather.index')" :active="route().current('weather.index')">
-                            Weather
+                            Weather API
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('parse-xml')" :active="route().current('parse-xml')">
+                            XML Parser
                         </BreezeResponsiveNavLink>
                         <BreezeResponsiveNavLink :href="route('react.index')" :active="route().current('react.index')">
                             React Page
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('angular.demo')" :active="route().current('angular.demo')">
+                            Angular Page
                         </BreezeResponsiveNavLink>
                     </div>
 
