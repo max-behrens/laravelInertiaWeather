@@ -36,6 +36,9 @@ const showingNavigationDropdown = ref(false);
                                 <BreezeNavLink :href="route('weather.index')" :active="route().current('weather.index')">
                                     Weather
                                 </BreezeNavLink>
+                                <BreezeNavLink :href="route('react.index')" :active="route().current('react.index')">
+                                    React Page
+                                </BreezeNavLink>
                             </div>
                         </div>
 
@@ -87,6 +90,9 @@ const showingNavigationDropdown = ref(false);
                         </BreezeResponsiveNavLink>
                         <BreezeResponsiveNavLink :href="route('weather.index')" :active="route().current('weather.index')">
                             Weather
+                        </BreezeResponsiveNavLink>
+                        <BreezeResponsiveNavLink :href="route('react.index')" :active="route().current('react.index')">
+                            React Page
                         </BreezeResponsiveNavLink>
                     </div>
 

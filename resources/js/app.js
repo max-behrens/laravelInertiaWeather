@@ -7,6 +7,17 @@ import { createInertiaApp } from '@inertiajs/inertia-vue3';
 import { InertiaProgress } from '@inertiajs/progress';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from 'ziggy-js';
+// Import React and ReactDOM
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+
+// Make React available globally
+window.React = React;
+window.createReactRoot = createRoot;
+
+// Log to confirm React is available
+console.log('React version:', React.version);
+console.log('createRoot available:', typeof createRoot === 'function');
 
 const appName = window.document.getElementsByTagName('title')[0]?.innerText || 'Laravel';
 

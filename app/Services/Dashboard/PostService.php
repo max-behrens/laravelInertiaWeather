@@ -184,7 +184,6 @@ class PostService
             }
         }
 
-        Log::info('contentSections CHAT:', ['contentSections' => $contentSections]);
 
 
 

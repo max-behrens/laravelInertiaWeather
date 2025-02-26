@@ -45,6 +45,12 @@ Route::prefix('dashboard')
         // Route::get('/dashboard/posts/create', [DashboardPostController::class, 'store'])->name('posts.create');
 
 
+        Route::get('/vue-react-page', function () {
+            return Inertia::render('Dashboard/React/VueReactPage');
+        })->name('react.index');
+
+
+
         Route::post('/ask-openai', [DashboardAIController::class, 'askOpenAI']);
 
         Route::get('/dashboard', function () {
